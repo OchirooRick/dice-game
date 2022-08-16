@@ -1,5 +1,6 @@
 // Тоглоомын бүх газарт ашиглагдах глобаль хувьсагчдыг энд зарлая
-
+// Тоглоом дууссан эсэхийг хадгалах төлөвийн хувьсагч
+var isGameOver;
 // Аль тоглогч шоо шидэх вэ гэдгийг энд зарлая
 var activePlayer;
 
@@ -17,6 +18,8 @@ initGame();
 
 // Тоглоомыг шинээр эхлэхэд бэлтгэнэ
 function initGame() {
+  // Тоглоом эхэллээ гэдэг төлөвт оруулна
+  isNewGame = true;
   // Тоглогчийн ээлжийг хадгалах хувьсагч, нэгдүгээр тоглогчийг 0, хоёрдугаар тоглогчийг 1 гэж тэмдэглэе.
   activePlayer = 0;
 
@@ -49,48 +52,60 @@ function initGame() {
 
 // Шоог шидэх event listener
 document.querySelector(".btn-roll").addEventListener("click", function () {
-  // 1 - 6 доторх санамсаргүй нэг тоо гаргаж авна
-  var diceNumber = Math.floor(Math.random() * 6) + 1;
+  // Тоглоом дууссан эсэхийг шалгаад үргэлжлүүлнэ
+  if (isNewGame) {
+    // 1 - 6 доторх санамсаргүй нэг тоо гаргаж авна
+    var diceNumber = Math.floor(Math.random() * 6) + 1;
 
-  // Шооны зургийг вэб дэр гаргаж ирнэ.
-  diceDom.style.display = "block";
+    // Шооны зургийг вэб дэр гаргаж ирнэ.
+    diceDom.style.display = "block";
 
-  // Буусан санамсаргүй тоонд харгалзах шооны зургийг вэб дээр гаргаж ирнэ
-  diceDom.src = "dice-" + diceNumber + ".png";
+    // Буусан санамсаргүй тоонд харгалзах шооны зургийг вэб дээр гаргаж ирнэ
+    diceDom.src = "dice-" + diceNumber + ".png";
 
-  // Буусан тоо нь 0 ээс ялгаатай бол идэвхтэй тоглогчийн ээлжийн оноог нэмэгдүүлнэ
-  if (diceNumber !== 1) {
-    // 1 ээс ялгаатай тоо буулаа. Буусан тоог тоглогчид нэмж өгнө
-    roundScore = roundScore + diceNumber;
-    document.getElementById("current-" + activePlayer).textContent = roundScore;
+    // Буусан тоо нь 0 ээс ялгаатай бол идэвхтэй тоглогчийн ээлжийн оноог нэмэгдүүлнэ
+    if (diceNumber !== 1) {
+      // 1 ээс ялгаатай тоо буулаа. Буусан тоог тоглогчид нэмж өгнө
+      roundScore = roundScore + diceNumber;
+      document.getElementById("current-" + activePlayer).textContent =
+        roundScore;
+    } else {
+      // 1 буусан тул тоглогчийн ээлжийг энэ хэсэгт сольж өгнө
+      switchToNextPlayer();
+    }
   } else {
-    // 1 буусан тул тоглогчийн ээлжийг энэ хэсэгт сольж өгнө
-    switchToNextPlayer();
+    alert("Тоглоом дууссан байна. NEW GAME товчийг дарж шинээр эхлэнэ үү");
   }
 });
 
 // HOLD товчны event listener
 document.querySelector(".btn-hold").addEventListener("click", function () {
-  // Уг тоглогчийн цуглуулсан ээлжний оноог глобал оноон дээр нэмж өгнө
-  scores[activePlayer] = scores[activePlayer] + roundScore;
+  if (isNewGame) {
+    // Уг тоглогчийн цуглуулсан ээлжний оноог глобал оноон дээр нэмж өгнө
+    scores[activePlayer] = scores[activePlayer] + roundScore;
 
-  // Дэлгэц дээр оноог нь өөрчлөнө
-  document.getElementById("score-" + activePlayer).textContent =
-    scores[activePlayer];
+    // Дэлгэц дээр оноог нь өөрчлөнө
+    document.getElementById("score-" + activePlayer).textContent =
+      scores[activePlayer];
 
-  // Уг тоглогч хожсон эсэхийг шалгах
-  if (scores[activePlayer] >= 20) {
-    // Ялагч гэсэн текстийг нэрний оронд гаргана
-    document.getElementById("name-" + activePlayer).textContent = "WINNER!!!";
-    document
-      .querySelector(".player-" + activePlayer + "-panel")
-      .classList.add("winner");
-    document
-      .querySelector(".player-" + activePlayer + "-panel")
-      .classList.remove("active");
+    // Уг тоглогч хожсон эсэхийг шалгах
+    if (scores[activePlayer] >= 20) {
+      // Тоглоомыг дууссан төлөвт оруулна
+      isNewGame = false;
+      // Ялагч гэсэн текстийг нэрний оронд гаргана
+      document.getElementById("name-" + activePlayer).textContent = "WINNER!!!";
+      document
+        .querySelector(".player-" + activePlayer + "-panel")
+        .classList.add("winner");
+      document
+        .querySelector(".player-" + activePlayer + "-panel")
+        .classList.remove("active");
+    } else {
+      // Тоглогчийн ээлжийг солино
+      switchToNextPlayer();
+    }
   } else {
-    // Тоглогчийн ээлжийг солино
-    switchToNextPlayer();
+    alert("Тоглоом дууссан байна. NEW GAME товчийг дарж шинээр эхлэнэ үү");
   }
 });
 
